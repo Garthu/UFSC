@@ -1,0 +1,110 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper, margin=1in]{geometry}
+
+\usepackage{minted}
+\large
+\title{C++ Assignment 1}
+\begin{document}
+\begin{titlepage}
+	\begin{center}
+    \line(1,0){300}\\
+    [0.65cm]
+	\huge{\bfseries Trabalho I}\\
+	\line(1,0){300}\\
+	\textsc{\Large Universidade Federal de Santa Catarina}\\
+	\textsc{\LARGE \today}\\
+	[5.5cm]     
+	\end{center}
+	\begin{flushright}
+		\textsc{\Large Samuel Cardoso\\19100544}\\
+		[0.5cm]
+		\textsc{\Large Thiago Z. L. Chaves\\19100547}\\
+		[0.5cm]
+	\end{flushright}
+\end{titlepage}
+
+\section*{Como foi distribuído o trabalho pela dupla?}
+\subsection*{\\O trabalho foi feito integralmente em grupo, através de chamadas do discord. Todos os dias que realizamos o trabalho, compartilhávamos a tela e o outro auxiliava, assim íamos intercalando. Em partes finais do trabalho um dos alunos ficou encarregado de fazer a Fila Encadeada e o outro ficou encarregado de arrumar a sincronização dos semáforos.\\}
+
+\section*{Quantas estruturas de sincronização no total foram utilizadas em sua solução?}
+\subsection*{(Descreva onde e porque foram utilizadas, utilize capturas de tela ou pseudo-códigos se julgar necessário.)\\}
+\subsection*{Foram utilizados ao total 3 mutex e 4 semáforos para sincronização.}
+
+\begin{minted}[frame=lines, linenos, fontsize=\large]
+{c}
+TicketCaller* pc;
+pthread_mutex_t mutex_cliente;
+pthread_mutex_t mutex_retrieved_ticket;
+pthread_mutex_t mutex_queue;
+sem_t sem_espera_cliente;
+sem_t* sem_client;
+sem_t* sem_clerk;
+sem_t sem_cooker;
+\end{minted}
+
+\subsection*{mutex\_cliente: Foi utilizado na função client() a fim de que o cliente pegue uma senha única.}
+\begin{minted}[frame=lines, linenos, fontsize=\large]
+{c}
+pthread_mutex_lock(&mutex_cliente);
+int senha_cliente = get_unique_ticket(pc);
+pthread_mutex_unlock(&mutex_cliente);
+\end{minted}
+
+\subsection*{mutex\_retrieved\_ticket: Foi utilizado na função clerk() a fim de que o funcionário pegue uma senha única que anteriormente já tenha sido retirada.}
+\begin{minted}[frame=lines, linenos, fontsize=\large]
+{c}
+pthread_mutex_lock(&mutex_retrieved_ticket);
+int senha_cliente = get_retrieved_ticket(pc);
+pthread_mutex_unlock(&mutex_retrieved_ticket);
+\end{minted}
+
+\subsection*{mutex\_queue: Foi utilizado a fim de limitar a escrita e a remoção de elementos da fila, para que não houvesse possibilidade de sobrescrever valores.}
+\begin{minted}[frame=lines, linenos, fontsize=\large]
+{c}
+pthread_mutex_lock(&mutex_queue);
+enqueue(od);
+pthread_mutex_unlock(&mutex_queue);
+\end{minted}
+\begin{minted}[frame=lines, linenos, fontsize=\large]
+{c}
+pthread_mutex_lock(&mutex_queue);
+order_t *poped_data = dequeue();
+pthread_mutex_unlock(&mutex_queue);
+\end{minted}
+
+\subsection*{sem\_espera\_cliente: Utilizado a fim de avisar que chegou clientes para serem atendidos. Onde na função clerk() o atendente espera um cliente usando "sem\_wait" e o cliente avisa que chegou dando um "sem\_post".}
+\begin{minted}[frame=lines, linenos, fontsize=\large]
+{c}
+void* client(void *args) {
+	client_t client = *(client_t *) args;
+
+	pthread_mutex_lock(&mutex_cliente);
+	int senha_cliente = get_unique_ticket(pc);
+	pthread_mutex_unlock(&mutex_cliente);
+
+	sem_post(&sem_espera_cliente);
+\end{minted}
+\begin{minted}[frame=lines, linenos, fontsize=\large]
+{c}
+void* clerk(void *args) {
+	clerk_t clerk = *(clerk_t *) args;
+
+	while(true) {
+		while (true) {
+			sem_wait(&sem_espera_cliente);
+\end{minted}
+
+\subsection*{sem\_t* sem\_client: É um ponteiro para um array de semáforos, onde cada cliente possui seu semáforo.}
+
+\subsection*{sem\_t* sem\_clerk: É um ponteiro para um array de semáforos, onde cada funcionário possui seu semáforo.}
+
+\subsection*{sem\_t sem\_cooker: Um semáforo para o acesso ao cozinheiro. O cozinheiro só começa a cozinhar após um funcionário liberar seu semáforo através da função clerk\_create\_order().}
+
+\section*{\\É possível resolver o problema em questão sem o uso de nenhum mecanismo de sincronização? Justifique o porquê.}
+\subsection*{O problema não poderia ser resolvido sem a sincronização efetivamente, pois poderia haver sobrescrita e leitura de valores errôneos em variáveis compartilhadas.}
+
+\end{document}

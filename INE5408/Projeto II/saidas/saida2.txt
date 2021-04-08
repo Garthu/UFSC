@@ -1,0 +1,18 @@
+bear is prefix of 1 words
+bear is at (0,149)
+bell is prefix of 1 words
+bell is at (150,122)
+bid is prefix of 1 words
+bid is at (273,82)
+bu is prefix of 2 words
+bull is prefix of 1 words
+bull is at (356,113)
+buy is prefix of 1 words
+buy is at (470,67)
+but is not prefix
+sell is prefix of 1 words
+sell is at (538,97)
+stock is prefix of 1 words
+stock is at (636,79)
+stop is prefix of 1 words
+stop is at (716,92)

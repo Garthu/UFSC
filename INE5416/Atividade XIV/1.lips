@@ -1,0 +1,8 @@
+(defun main()
+    (setq x_value (read))
+    (setq y_value (read))
+    (write-line (write-to-string ((lambda (x y)
+    (or (and y (not x)) (and (not y) x))) x_value y_value)))
+)
+
+(main)

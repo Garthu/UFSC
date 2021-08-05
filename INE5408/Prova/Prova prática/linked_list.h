@@ -127,18 +127,25 @@ class LinkedList {
 //! Inversão da lista
 template<typename T>
 void structures::LinkedList<T>::invert() {
-    // ...
-    // COLOQUE SEU CODIGO AQUI...
-    // ...
+    //! Retira os elementos do final e os adiciona os novamente na ordem inversa
+    //! ao qual foram retirados
+    for (int i = 0; i < size(); i++) {
+        T poped_data = pop_back();
+        insert(poped_data, i);
+    }
 }
 
 //! Duplicação, em memória, da lista
 template<typename T>
 structures::LinkedList<T> structures::LinkedList<T>::clone() {
     LinkedList<T> list_clone;
-    // ...
-    // COLOQUE SEU CODIGO AQUI...
-    // ...
+
+    //! Retira o elemento de index 'i' da lista principal e passa para a
+    //! segunda lista
+    for (int i = 0; i < size(); i++) {
+        list_clone.insert(at(i), i);
+    }
+
     return list_clone;
 }
 
@@ -148,18 +155,24 @@ structures::LinkedList<T> structures::LinkedList<T>::slicing(int start,
                                                              int stop,
                                                              int step) {
     LinkedList<T> list_slice;
-    // ...
-    // COLOQUE SEU CODIGO AQUI...
-    // ...
+
+    int index = 0;
+    //! Adiciona em sequência os elementos de 'start + x(step)' na lista
+    for (int i = start; i < stop; i+=step) {
+        list_slice.insert(at(i), index);
+        ++index;
+    }
+
     return list_slice;
 }
 
 //! Acréscimo de outra lista (list_add) ao final da lista
 template<typename T>
 void structures::LinkedList<T>::append(structures::LinkedList<T> &list_add) {
-    // ...
-    // COLOQUE SEU CODIGO AQUI...
-    // ...
+    for (int i = 0; i < list_add.size(); i ++) {
+        T data_on_index = list_add.at(i);
+        push_back(data_on_index);
+    }
 }
 
 //! Divisão da lista em duas partes (elementos com índices pares e ímpares)
@@ -167,9 +180,24 @@ template<typename T>
 structures::LinkedList< structures::LinkedList<T> * >
                                            structures::LinkedList<T>::halve() {
     LinkedList< LinkedList<T> * > list_halve;
-    // ...
-    // COLOQUE SEU CODIGO AQUI...
-    // ...
+
+    LinkedList<T> *even_index = new LinkedList();
+    LinkedList<T> *odd_index = new LinkedList();
+
+    //! For que verifica se o index é par ou ímpar e adiciona os elementos em
+    //! suas respectivas listas
+    for (int i = 0; i < size(); i++) {
+        if (i % 2 == 0) {
+            even_index->push_back(at(i));
+        } else {
+            odd_index->push_back(at(i));
+        }
+    }
+    //! Coloca ambas as lista dentro da lista principal
+    list_halve.push_back(even_index);
+    list_halve.push_back(odd_index);
+
+    //! Retorna a Lista de Lista de ponteiros
     return list_halve;
 }
 
